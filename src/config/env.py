@@ -4,11 +4,12 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-mode = os.getenv("MODE", "PROD")
+MODE = os.getenv("MODE", "PROD")
 
 # MODE CREDENTIALS
-if mode == "DEV":
+if MODE == "DEV":
     CORS_ALLOW_ALL = True
+    ALLOWED_ORIGINS = None  # Define it even in DEV mode
 else:
     CORS_ALLOW_ALL = False
     ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS")
@@ -20,7 +21,7 @@ PORT = int(os.getenv("PORT", 5000))
 LOG_LEVEL = os.getenv("LOG_LEVEL", "DEBUG")  
 
 # WEBHOOK CONFIGURATION
-WEBHOOK_VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFY_TOKEN")
+WEBHOOK_VERIFY_TOKEN = os.getenv("WEBHOOK_VERIFICATION_TOKEN")
 
 # Validation
 REQUIRED_ENV_VARS = [

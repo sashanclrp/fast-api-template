@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Query, Path, Body
 from typing import Dict, Any, List, Optional
 
-from src.schemas.template_schemas import TemplateCreate, TemplateResponse, TemplateUpdate
-from src.services.template_service import get_templates, get_template_by_id, create_template, update_template, delete_template
+from schemas.template_schemas import TemplateCreate, TemplateResponse, TemplateUpdate
+from services.template_service import get_templates, get_template_by_id, create_template, update_template, delete_template
 from utils.logger import logger
 
 router = APIRouter()

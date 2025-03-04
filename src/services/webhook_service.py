@@ -1,7 +1,6 @@
 from typing import Dict, Any, List, Optional
 import asyncio
 
-from src.config.env import EnvConfig
 from utils.logger import logger
 
 async def process_webhook(webhook_data: Dict[str, Any]) -> Dict[str, Any]:

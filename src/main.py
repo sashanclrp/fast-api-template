@@ -5,12 +5,12 @@ import time
 import uvicorn
 
 # Import config and utils
-from config.env import PORT, CORS_ALLOW_ALL, ALLOWED_ORIGINS
+from config.env import PORT, CORS_ALLOW_ALL, ALLOWED_ORIGINS, MODE
 from utils.logger import logger
 
 # Import routes
-from src.routes.webhook_routes import router as webhook_router
-from src.routes.template_routes import router as template_router
+from routes.webhook_routes import router as webhook_router
+from routes.template_routes import router as template_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -50,10 +50,41 @@ else:
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
+    
+    # Log request info in DEV mode
+    if MODE == "DEV":
+        # Get request path and method
+        path = request.url.path
+        method = request.method
+        
+        # Get query params as string
+        query_params = str(request.query_params) if request.query_params else "None"
+        
+        # Log before processing
+        logger.info(f"Request: {method} {path} | Params: {query_params}")
+        
+        # Attempt to log body for non-GET requests (could be empty for some requests)
+        if method != "GET":
+            try:
+                body = await request.body()
+                if body:
+                    # Limit body size in logs to avoid huge outputs
+                    body_str = body.decode('utf-8')
+                    if len(body_str) > 1000:
+                        body_str = body_str[:1000] + "... [truncated]"
+                    logger.info(f"Request Body: {body_str}")
+            except Exception:
+                # Some bodies can't be read twice, so we'll just ignore errors
+                pass
+    
     response = await call_next(request)
     process_time = time.time() - start_time
     response.headers["X-Process-Time"] = str(process_time)
-    logger.info(f"Request processed in {process_time:.4f} seconds")
+    
+    # Log completion time in DEV mode
+    if MODE == "DEV":
+        logger.info(f"Request to {request.url.path} processed in {process_time:.4f} seconds")
+    
     return response
 
 # Error handler
@@ -96,4 +127,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=PORT,
         reload=False  # Watchdog handles reloading
-    ) 
+    )
